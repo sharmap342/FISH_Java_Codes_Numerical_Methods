@@ -1,0 +1,125 @@
+
+;gen zone wedge  p0 (3.85,1.6,1.1) p1 (4,1.6,1.1) p2 (3.85,3.08,1.1) p3 (3.85,1.6,2.58) size 1, @sy12m1, @sz22 group cutoff
+gen zone wedge  p0 (3.85,1.6,1.1) p1 (4,1.6,1.1) p2 (3.85,3.08,1.1) p3 (3.85,1.6,2.58) size 1, 8, 8 group cutoff
+group gp gp_cutoff range group cutoff
+def delp
+	local pnt=zone_head
+	loop while pnt#null
+		local group_str1=z_group(pnt)
+		if group_str1='cutoff'
+			local point=z_cen(pnt)
+			local val= 0*xcomp(point)- 1110000*ycomp(point) + 1110000*zcomp(point) + 543900
+			if val<0
+				z_group(pnt)='me'
+			end_if
+		end_if
+		pnt=z_next(pnt)
+	end_loop
+
+end
+@delp
+del zone range group me
+;gen zone wedge p0 (3.85,1.6,1.285) p1 (3.85,1.785,1.285) p2 (3.981,1.6,1.285) p3 (3.85,1.6,1.1) p4 (3.981,1.785,1.285) p5 (4,1.6,1.1) size 1, 1, 1 group cutoff
+
+def points
+	n_zones=8	
+	c1=vector(3.85,3.08,2.58)
+	c2=vector(3.85,1.6,1.1)
+	c3=vector(4,1.6,1.1)
+ 	l_digonal12=sqrt(dot((c1-c2),(c1-c2)))
+ 	l_digonal13=sqrt(dot((c1-c3),(c1-c3)))
+ 	l_12 = l_digonal12/8
+  	l_13 = l_digonal13/8
+ 	uv_12 = (c1-c2)/l_digonal12
+  	uv_13 = (c1-c3)/l_digonal13
+	p0m = vector(3.85,1.6,1.285)
+	p1m = vector(3.85,1.785,1.285)
+	p2m = vector(3.981,1.6,1.285)
+	p3m = vector(3.85,1.6,1.1)
+	p4m = vector(3.981,1.785,1.285)
+	p5m = vector(4,1.6,1.1)
+	
+	loop i(1,8)
+		if i#8
+			command
+			gen zone wedge p0 @p0m p1 @p1m p2 @p2m p3 @p3m p4 @p4m p5 @p5m size 1, 1, 1 group cutoff
+			end_command
+		else 
+			command
+			gen zone tet p0 @p0m p1 @p5m p2 @p3m p3 @p1m size 1, 1, 1 group cutoff
+			end_command
+		end_if
+
+		p0m = p0m + l_12*uv_12
+		p1m = p1m + l_12*uv_12
+		p3m = p3m + l_12*uv_12
+		p2m = p2m + l_13*uv_13
+		p4m = p4m + l_13*uv_13
+		p5m = p5m + l_13*uv_13
+	end_loop	  	
+end
+@points
+
+gen zone wedge  p0 (4,1.6,2.58) p1 (3.85,1.6,2.58) p2 (4,3.08,2.58) p3 (4,1.6,1.1) size 1, 8, 8 group mirror
+
+def delpm
+	local pnt=zone_head
+	loop while pnt#null
+		local group_str1=z_group(pnt)
+		if group_str1='mirror'
+			local point=z_cen(pnt)
+			local val= 0*xcomp(point)- 1110250*ycomp(point) + 1110000*zcomp(point) + 520800
+			if val<0
+				z_group(pnt)='mem'
+			end_if
+		end_if
+		pnt=z_next(pnt)
+	end_loop
+
+end
+@delpm
+del zone range group mem
+def points
+	n_zones=8	
+	c1=vector(4,1.6,1.1)
+	c2=vector(4,3.08,2.58)
+	c3=vector(3.85,3.08,2.58)
+ 	l_digonal12=sqrt(dot((c1-c2),(c1-c2)))
+ 	l_digonal13=sqrt(dot((c1-c3),(c1-c3)))
+ 	l_12 = l_digonal12/8
+  	l_13 = l_digonal13/8
+ 	uv_12 = (c1-c2)/l_digonal12
+  	uv_13 = (c1-c3)/l_digonal13
+	p0m = vector(4,2.895,2.58)
+	p1m = vector(4,2.895,2.395)
+	p2m = vector(3.85,2.895,2.58)
+	p3m = vector(4,3.08,2.58)
+	p4m = vector(3.869,2.895,2.395)
+	p5m = vector(3.85,3.08,2.58)
+	
+	loop i(1,8)
+		if i#8
+			command
+			gen zone wedge p0 @p0m p1 @p1m p2 @p2m p3 @p3m p4 @p4m p5 @p5m size 1, 1, 1 group mirror
+			end_command
+		else 
+			command
+			gen zone tet p0 @p0m p1 @p1m p2 @p2m p3 @p3m size 1, 1, 1 group mirror
+			end_command
+		end_if
+
+		p0m = p0m + l_12*uv_12
+		p1m = p1m + l_12*uv_12
+		p3m = p3m + l_12*uv_12
+		p2m = p2m + l_13*uv_13
+		p4m = p4m + l_13*uv_13
+		p5m = p5m + l_13*uv_13
+	end_loop	  	
+end
+@points
+gen zone reflect origin 4,1.6,1.1 normal 0, 0.707107,-0.707107 range union group cutoff group mirror 
+
+
+
+
+

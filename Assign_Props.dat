@@ -1,0 +1,213 @@
+def rock_select
+
+if rtype = 1
+
+
+graniteflag = 1
+
+command
+
+call Limestone
+
+end_command
+
+else
+
+if rtype = 2
+
+command
+
+call Shale
+
+end_command
+
+else
+
+graniteflag = 1
+
+command
+
+call Granite
+
+end_command
+
+end_if
+
+end_if
+
+end
+
+rock_select
+
+def calc_elastic
+
+bulkval = E/(3*(1-2*v))
+shearval = E/(2*(1+v))
+
+end
+
+calc_elastic
+
+def calcdil
+
+dilval = (1/stress_CI-0.1)*fr_mob
+
+end
+
+calcdil
+
+def joint_props
+
+if graniteflag = 0
+
+command
+
+model mech subi
+
+prop bimatrix 0
+
+prop density densval
+prop ttable 2
+prop bulk bulkval
+prop shear shearval
+prop dilation dilval
+prop cohesion coh_peak
+prop friction fr_init
+prop tension tval
+table 2 0 tval t_str t_res
+prop ctable 3
+prop ftable 4
+table 3 0 coh_peak coh_str coh_res
+table 4 0 fr_init fr_str fr_mob
+
+prop bijoint 0
+prop jtension jtval
+prop tjtable 1
+table 1 0 jtval jt_str jt_res
+prop jcohesion jcoh_peak
+prop jfriction jfr_init
+prop jdilation jdilval
+prop cjtable 7
+prop fjtable 8
+table 7 0 jcoh_peak jcoh_str jcoh_res
+table 8 0 jfr_init jfr_str jfr_mob
+
+end_command
+
+if shaft = 0
+
+command
+
+prop jddirection = 0
+prop jdip = 0
+prop jnx = 0
+prop jny = 0
+prop jnz = 1
+
+end_command
+
+else
+
+command
+
+prop jddirection = 90
+prop jdip = 90
+prop jnx = 1
+prop jny = 0
+prop jnz = 0
+
+end_command
+
+end_if
+
+else
+
+command
+
+model mech strainsoftening range group host_rock
+
+prop density densval range group host_rock
+prop ttable 2 range group host_rock
+prop bulk bulkval range group host_rock
+prop shear shearval range group host_rock
+prop dilation dilval range group host_rock
+prop cohesion coh_peak range group host_rock
+prop friction fr_init range group host_rock
+prop tension tval range group host_rock
+table 2 0 tval t_str t_res
+prop ctable 3 range group host_rock
+prop ftable 4 range group host_rock
+table 3 0 coh_peak coh_str coh_res
+table 4 0 fr_init fr_str fr_mob
+
+end_command
+
+end_if
+
+end
+
+joint_props
+
+;model mech elastic range group host_rock
+;
+;prop density densval range group host_rock
+;prop bulk bulkval range group host_rock
+;prop shear shearval range group host_rock
+model mech elastic range group outer_elastic
+prop density densval range group outer_elastic
+prop bulk bulkval shear shearval range group outer_elastic
+;model mech elastic range x 11.1 12.27
+;prop density densval range x 11.1 12.27 
+;prop bulk bulkval shear shearval range x 11.1 12.27
+;assign densities for thermal model before making it null
+
+ini density densval range group outer_elastic
+ini density densval range group host_rock
+ini density densval_UFCi range group UFCi
+ini density densval_concrete range group concrete
+ini density densval_HCB range group HCB
+ini density densval_DBF range group DBF
+ini density densval_gp_bentonite range group gp_bentonite
+ini density densval_buffer_block range group buffer_block
+
+;solve with backfill
+model mech elastic range union group concrete group HCB group gp_bentonite group buffer_block group DBF group UFCi 
+prop density densval_UFCi bulk bulkval_UFCi shear shearval_UFCi range group UFCi
+prop density densval_concrete bulk bulkval_concrete shear shearval_concrete range group concrete
+prop density densval_HCB bulk bulkval_HCB shear shearval_HCB range group HCB
+prop density densval_DBF bulk bulkval_DBF shear shearval_DBF range group DBF
+prop density densval_gp_bentonite bulk bulkval_gp_bentonite shear shearval_gp_bentonite range group gp_bentonite
+prop density densval_buffer_block bulk bulkval_buffer_block shear shearval_buffer_block range group buffer_block
+;model mech null range union group concrete group HCB group gp_bentonite group buffer_block group DBF group UFCi 
+
+;def outer_elastic
+;
+;if circle = 1
+;
+;command
+;
+;model mech elastic range cylinder end1 -100000 0 0 end2 100000 0 0 radius outerrm 1000000
+;prop bulk bulkval shear shearval range cylinder end1 -100000 0 0 end2 100000 0 0 radius outerrm 1000000
+;
+;end_command
+;
+;else
+;
+;ninnerdens = -innerdens
+;
+;command
+;
+;model mech elastic range y innerdens 1000000
+;model mech elastic range z innerdens 1000000
+;model mech elastic range y -1000000 ninnerdens
+;prop bulk bulkval shear shearval range y innerdens 1000000
+;prop bulk bulkval shear shearval range z innerdens 1000000
+;prop bulk bulkval shear shearval range y -1000000 ninnerdens
+;
+;end_command
+;
+;end_if
+;
+;end
+;
+;outer_elastic

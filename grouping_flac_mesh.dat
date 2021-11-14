@@ -1,0 +1,6 @@
+group HCB range group cutoff
+group host_rock range union group rock group mirror group shield group orock group mesh
+group buffer_block range group block
+
+
+

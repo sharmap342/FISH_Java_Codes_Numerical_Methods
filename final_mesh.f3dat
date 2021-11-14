@@ -1,0 +1,473 @@
+def parm
+	global rad=0.292 ; radius of spherical cavity
+	global len=0.422 ; length of outer box edge
+	global rad_size=4 ; number of zones in radial direction for outer shell of sphere and cylinder
+	global p0x=12.25 ; coordinated of p0
+	global p0y=0.978 ; 
+	global p0z=0.5 ;
+	global s=2 ;define the object slot number number
+	global sxs1=4 ; number of y zones for sphere in layer 1
+	global sxc1=6 ; number of y zones for cylinder in layer 1
+	global sxbr1=2 ;number of x zones for bottom right DBF block in layer 1 
+	global sybr1=4	;number of y zones for bottom right DBF block in layer 1
+	global sybl1=6	;number of y zones for bottom left DBF block in layer 1
+	global szbr1=8	;number of z zones for bottom right DBF block in layer 1
+	global sxt1=2*5 ; number of x zones for top gap fill bentonite
+	global szt1=1 ; number of z zones for top gap fill bentonite
+	global sxr1=2*5 ; number of x zones for right side gap fill bentonite
+	global syr1=4/2 ; number of y zones for right side gap fill bentonite
+	global szr1=8*2 ; number of z zones for right side gap fill bentonite
+	global ratx1=1
+	global ratx2=1
+	global raty1=1.1
+	global raty2=1.1
+	global ratz1=1.1
+	global ratz2=1.1
+	global ratze=1.04
+
+	global sx11=11 ;first block first layer
+	global sx11m2=11 ;basically the far block in outer rock in right side
+	global sx21=20
+	global sx21m2=20 ;basically the far block in outer rock in right side 
+	global sx31=20
+	global sx31m2=20 ;basically the far block in outer rock in right side
+	global sx12=sx11 ; first block second layer
+	global sx12m2=sx11 ;basically the far block in outer rock in right side
+	global sx13=6
+	global sx13m2=6 
+	global sx14=sx13/2
+	global sx14m2=sx13m2/2
+	global sx22=sx21 ; second block second layer
+	global sx22m2=sx21
+	global sx23=sx22
+	global sx23m2=sx22m2
+	global sx24=sx23/2
+	global sx24m2=sx23m2/2
+	global sx32=sx31 ; third block second layer
+	global sx32m2=sx31
+	global sx33=sx32
+	global sx33m2=sx32m2
+	global sx34=sx33/2
+	global sx34m2=sx33m2/2
+
+	global sy11=12 ;first block first layer 
+	global sy11m1=8 ; first block first layer with higher mesh size
+	global sy11m2=10 ;basically the far block in outer rock in right side 
+	global sy21=sy11
+	global sy21m1=sy11m1
+	global sy21m2=sy11m2 ;basically the far block in outer rock in right side
+	global sy31=sy21
+	global sy31m1=sy21m1
+	global sy31m2=sy21m2
+	global sy12=sy11 ; first block second layer
+	global sy12m1=sy11m1 ; first block second layer with higher mesh size 
+	global sy12m2=sy11m2 ;basically the far block in outer rock in right side
+	global sy13=sy12
+	global sy13m1=sy12m1
+	global sy13m2=sy12m2
+	global sy14=sy13/2
+	global sy14m1=sy13m1/2
+	global sy14m2=sy13m2 ;be careful!!
+	global sy22=12 ; second block second layer
+	global sy22m1=8 
+	global sy22m2=10
+	global sy23=sy22/2
+	global sy23m1=sy22m1/2
+	global sy23m2=sy22m2
+	global sy24=sy23
+	global sy24m1=sy23m1
+	global sy24m2=sy23m2
+	global sy32=12 ; third block second layer
+	global sy32m1=8
+	global sy32m2=10
+	global sy33=sy32/2
+	global sy33m1=sy32m1/2
+	global sy33m2=sy32m2
+	global sy34=sy33
+	global sy34m1=sy33m1
+	global sy34m2=sy33m2
+
+	global sz11=9*2 ;first block first layer
+	global sz11m2=9 ;basically the far block in outer rock in right side 
+	global sz21=sz11/2
+	global szh21=9 ;right part of the cutoff in block2 layer 1 half of sz21
+	global sz21m2=sz21 ;basically the far block in outer rock in right side
+	global sz31=sz21
+	global sz31m2=sz31
+	global szh31=9 ;be careful!! ;right part of the cutoff in block 3 layer 1 half of sz21
+	global sz12=8 ; first block second layer
+	global sz12m2=sz12 ;basically the far block in outer rock in right side
+	global sz13=sz12
+	global sz13m2=sz13
+	global sz14=100
+	global sz14m2=sz14
+	global sz22=8 ; second block second layer
+	global sz22m2=8
+	global sz23=sz22
+	global sz23m2=sz23
+	global sz24=100
+	global sz24m2=sz24
+	global sz32=8 ; third block second layer
+	global sz32m2=sz32
+	global sz33=sz32
+	global sz33m2=sz33
+	global sz34=100
+	global sz34m2=sz34
+
+;mesh sizes 0.05,0.1,0.2 0.1,0.1,0.2, 0.2,0.2,0.6 0.3,0.3 0.4
+	global m1 = 0.1
+	global m2 = 0.1
+	global m3 = 0.2
+end
+@parm
+;make spherical shell
+gen zone radbrick p0 @p0x, @p0y, @p0z  p1 12.25, 1.4, 0.5 p2 11.75, 0.978, 0.5 p3 12.25, 0.978, 1 size @sxs1 @sxs1 @sxs1 @rad_size &
+rat 1.0 1.0 1.0 1 dim @rad @rad @rad fill group UFCi slot @s
+group block slot @s range group UFCi slot @s not
+group gp gp_sphere slot @s range group UFCi slot @s
+group gp gp_block slot @s range group block slot @s 
+def make_sphere ;make the spherical cap of canister
+	local p_gp = gp_head
+	loop while p_gp # null
+	; Get gp coordinate: P=(px,py,pz)
+		local px = gp_xpos(p_gp)
+		local py = gp_ypos(p_gp)
+		local pz = gp_zpos(p_gp)
+		local group_str=gp_group(p_gp,s)
+		px=px-p0x ;take the point in local coordinate system
+		py=py-p0y
+		pz=pz-p0z
+		local dist = sqrt(px*px+py*py+pz*pz)
+       if group_str='gp_sphere' ;if, to make the fill brick a sphere
+       if dist>0
+			local k = max(abs(px),max(abs(py),abs(pz)))/dist ;calculat the rasius of cube and divide it with distance
+			local ax = px*k ;calculate the point on the sphere of radius k*dist
+			local ay = py*k
+			local az = pz*k
+			gp_xpos(p_gp)=ax+p0x ; take back the coordinates to glaobal coordinate system
+			gp_ypos(p_gp)=ay+p0y
+			gp_zpos(p_gp)=az+p0z
+		end_if
+		end_if
+		if group_str='gp_block' ; if to make the outside block as spherical mesh
+       	if dist>0
+	       	if abs(px)<len
+		       	if abs(py)<len
+			       	if abs(pz)<len
+				 			local l=rad/dist ; calculate a point radially below r on the sphere
+				 			local cx = px*l
+							local cy = py*l
+							local cz = pz*l
+							local maxp=max(abs(px),max(abs(py),abs(pz))) ; calculate a point radially above r on the sphere
+							local m = len/maxp
+							local bx = px*m
+							local by = py*m
+							local bz = pz*m
+							local u = (maxp-rad)/(len-rad)
+							gp_xpos(p_gp)=cx+u*(bx-cx)+p0x ;interpolate the point p
+							gp_ypos(p_gp)=cy+u*(by-cy)+p0y
+							gp_zpos(p_gp)=cz+u*(bz-cz)+p0z
+						else
+							gp_xpos(p_gp)=px+p0x ;interpolate the point p
+							gp_ypos(p_gp)=py+p0y
+							gp_zpos(p_gp)=pz+p0z
+				       end_if
+			       end_if
+		       end_if
+			end_if
+		end_if
+      p_gp=gp_next(p_gp)
+    end_loop
+end
+@make_sphere
+set @s=3
+gen zone radtunn p0 @p0x, @p0y, @p0z  p1 11.75, 0.978, 0.5 p2 12.25, 0 , 0.5 p3 12.25, 0.978, 1 size @sxs1 @sxc1 @sxs1 @rad_size &
+rat 1.0 1.0 1.0 1 dim @rad @rad @rad fill group UFCi slot @s
+group block slot @s range group UFCi slot @s not group UFCi slot 2 not group block slot 2 not
+group gp gp_sphere slot @s range group UFCi slot @s
+group gp gp_block slot @s range group block slot @s
+def make_cylinder ;make the cylindrical part of the canister
+	local p_gp = gp_head
+	loop while p_gp # null
+	; Get gp coordinate: P=(px,py,pz)
+		local px = gp_xpos(p_gp)
+		local pz = gp_zpos(p_gp)
+		local group_str=gp_group(p_gp,s)
+		px=px-p0x ;take the point in local coordinate system
+		pz=pz-p0z
+		local dist = sqrt(px*px+pz*pz)
+       if group_str='gp_sphere' ;if to make the fill brick sphere
+       if dist>0
+			local k = max(abs(px),abs(pz))/dist ;calculat the rasius of cube and divide it with distance
+			local ax = px*k ;calculate the point on the sphere of radius k*dist
+			local az = pz*k
+			gp_xpos(p_gp)=ax+p0x ; take back the coordinates to glaobal coordinate system
+			gp_zpos(p_gp)=az+p0z
+		end_if
+		end_if
+		if group_str='gp_block' ; if to make the outside block as spherical mesh
+       	if dist>r
+	       	if abs(px)<len
+					if abs(pz)<len
+		 				local l=rad/dist ; calculate a point radially below r on the sphere
+			 			local cx = px*l
+						local cz = pz*l
+						local maxp=max(abs(px),abs(pz))
+						local m = len/maxp ; calculate a point radially above r on the box
+						local bx = px*m
+						local bz = pz*m
+						local u = (maxp-rad)/(len-rad)
+						gp_xpos(p_gp)=cx+u*(bx-cx)+p0x ;interpolate the point p
+						gp_zpos(p_gp)=cz+u*(bz-cz)+p0z
+					else
+						gp_xpos(p_gp)=px+p0x ;interpolate the point p
+						gp_zpos(p_gp)=pz+p0z
+					end_if
+	       	end_if
+	       end_if
+       end_if
+      p_gp=gp_next(p_gp)
+    end_loop
+end
+@make_cylinder
+gen zone reflect origin 12.25,0.978,0.5 normal 0, 0,1 range union group UFCi  group block 
+gen zone copy -0.75,0,-1 
+gen zone reflect origin 11.5,1.4,0 normal 1,0,0 range x 10.9 11.6 y -0.1 1.5 z -1.1 0.1
+gen zone brick p0 12.25,0.978,0 p1 12.25,1.4,0 p2 12.25,0.978,-1 p3 12,0.978,0 size @sybr1, @szbr1, @sxbr1 group DBF 
+gen zone brick p0 12.25,0.978,0 p1 12.25,0,0 p2 12,0.978,0 p3 12.25,0.978,-1 size @sybl1, @sxbr1, @szbr1 group DBF
+gen zone copy -0.5,0,1 range group DBF 
+gen zone copy -0.75,0,1 range x 11.99 12.26 y -0.01 1.41 z -1.01 0.01
+gen zone copy -1,0,1 range x 11.99 12.26 y -0.01 1.41 z -1.01 0.01
+group gp_bentonite range x 10.99 11.26 y -0.01 1.41 z -0.01 1.01
+gen zone brick p0 12.25 1.4 1 p1 11 1.4 1 p2 12.25 0.978 1 p3 12.25 1.4 1.1 size @sxt1, @sybr1, @szt1 group gp_bentonite ;top right gap fill bentonite
+gen zone brick p0 12.25 0.978 1 p1 11 0.978 1 p2 12.25 0.0 1 p3 12.25 0.978 1.1 size @sxt1, @sybl1, @szt1 group gp_bentonite ;top left gap fill bentonite
+gen zone brick p0 12.25 1.4 1.0 p1 11.0 1.4 1.0 p2 12.25 1.6 1.0 p3 12.25 1.4 -1.0 size @sxr1 @syr1 @szr1 group gp_bentonite ;right gap fill bentonite
+gen zone brick p0 12.25 1.4 1.1 p1 11.0 1.4 1.1 p2 12.25 1.6 1.1 p3 12.25 1.4 1.0 size @sxr1 @syr1 @szt1 group gp_bentonite ;corner gap fill bentonite
+gen zone reflect origin 12.25,0,0 normal 0, 0,1 range x 10.96 12.26 y -0.1 1.7 z 1 1.2
+gen zone brick p0 11 0 -1.1 p1 11 1.6 -1.1 p2 10.875 0 -1.1 p3 11 0 1.1 size 12, 1, 18 group gp_bentonite
+gen zone brick p0 12.25,0,1.1 p1 12.25,1.6,1.1 p2 10.875,0,1.1 p3 12.25,0,2.58 size @sy12, @sx12, @sz12 group shield slot 10 ;top shield
+gen zone brick p0 12.25,1.6,1.1 p1 12.25,3.08,1.1 p2 10.875,1.6,1.1 p3 12.25,1.6,2.58 size @sy12m1, @sx12, @sz12  group shield slot 10 ;corner 
+gen zone brick p0 12.25,1.6,-1.1 p1 12.25,3.08,-1.1 p2 10.875,1.6,-1.1 p3 12.25,1.6,1.1 size @sy11m1, @sx11, @sz11  group shield ;right side
+gen zone reflect origin 12.25,0.978,0 normal 0, 0,1 range group shield slot 10
+group gp gp_shtobo range group shield x 10.93 12.3 y -0.01 1.52 z 1.06 1.15
+group gp gp_shtobo range group shield x 10.93 12.3 y -0.01 1.52 z -1.15 -1.06
+group gp gp_shtobo range group gp_bentonite x 10.93 11.03 y -0.01 1.62 z -1.15 1.15
+group gp gp_shtobo range group shield x 10.93 12.3 y 1.55 1.62 z -1.15 1.15
+
+def gp_arrange
+
+	local p_gp = gp_head
+	loop while p_gp # null
+		local group_str = gp_group(p_gp)
+		local px = gp_xpos(p_gp)
+		local py = gp_ypos(p_gp)
+		local pz = gp_zpos(p_gp)
+		local dz = 0.001
+		local z = 0.122222
+		local z0 = 0.125
+		local x = 0.133333
+		local x0 = 0.163
+		local x01 = 0.105
+		local x02 = 0.1
+		if group_str = 'gp_shtobo'
+			if pz > -0.99
+				if pz < -0.96
+					gp_zpos(p_gp)=-1
+				end_if
+			end_if
+			if pz < 0.99
+				if pz > 0.96
+					gp_zpos(p_gp)=1
+				end_if
+			end_if
+			loop i(0,15)
+				if pz < -0.856+i*z+dz
+					if pz > -0.856+i*z-dz
+						gp_zpos(p_gp)=-0.875+i*z0
+					end_if
+				end_if
+			end_loop
+			loop i(0,2)
+				if py < 1.6-i*x+dz
+					if py > 1.6-i*x-dz
+						gp_ypos(p_gp)= 1.6-i*x02
+					end_if
+				end_if
+			end_loop
+			loop i(0,3)
+				if py < 1.2-i*x+dz
+					if py > 1.2-i*x-dz
+						gp_ypos(p_gp)= 1.2945-i*x01
+					end_if
+				end_if
+			end_loop
+			loop i(0,6)
+				if py < 0+i*x+dz
+					if py > 0+i*x-dz
+						gp_ypos(p_gp)= 0+i*x0
+					end_if
+				end_if
+			end_loop
+		end_if
+		p_gp=gp_next(p_gp)
+	end_loop
+end
+@gp_arrange
+
+;;fill the tunnel with backfill material
+gen zone brick p0 10.875 1.6 1.1 p1 10.875 0.0 1.1 p2 4 1.6 1.1 p3 10.875 1.6 -1.1 size @sy21,@sx21,@sz21 rat 1 @ratx1 1 group gp_bentonite
+gen zone brick p0 4.0 1.6 1.1 p1 4.0 0.0 1.1 p2 3.85 1.6 1.1 p3 4.0 1.6 -1.1 size @sy21,1,@sz21 group block ;part of HCB
+gen zone brick p0 3.85 1.6 1.1 p1 3.85 0.0 1.1 p2 -8.0 1.6 1.1 p3 3.85 1.6 -1.1 size @sy31,@sx31,@sz31 rat 1 @ratx2 1 group concrete
+group block range x 6.97 3.87 y -0.02 1.62 z -1.12 1.12
+group block range x 1.08 3.83 y -0.02 1.62 z -1.12 1.12
+;;make the cutoff
+call cutoff_final
+gen zone wedge p0 (3.85,0,1.1) p1 (4,0,1.1) p2 (3.85,1.6,1.1) p3 (3.85,0,2.58)  size 1, @sy21, @sz12 group cutoff
+gen zone wedge p0 (4,0,2.58) p1 (3.85,0,2.58)  p2 (4,1.6,2.58) p3 (4,0,1.1)  size 1, @sy21, @sz12 group mirror
+gen zone wedge p0 (4,3.08,1.1) p1 (3.85,3.08,1.1) p2 (4,3.08,0) p3 (4,1.6,1.1)  size 1, @szh21, @sy21m1 group mirror
+gen zone wedge p1 (4,1.6,1.1) p0 (3.85,1.6,1.1)  p2 (3.85,1.6,0) p3 (3.85,3.08,1.1)  size 1, @szh21, @sy21m1 group cutoff
+gen zone reflect origin 12.25,0,0 normal 0, 0,1 range union group cutoff group mirror
+;;make rock above the tunnel
+gen zone brick p0 10.875 0 1.1 p1 10.875 1.6 1.1 p2 4 0 1.1 p3 10.875 0 2.58 size @sy22,@sx22,@sz22 rat 1 @ratx1 1 group rock
+gen zone brick p0 3.85 0 1.1 p1 3.85 1.6 1.1 p2 -8 0 1.1 p3 3.85 0 2.58 size @sy32,@sx32,@sz32 rat 1 @ratx2 1 group rock
+;;make rock right of tunnel
+gen zone brick p0 10.875 1.6 0 p1 10.875 3.08 0 p2 4 1.6 0 p3 10.875 1.6 1.1 size @sy21m1,@sx21,@szh21 rat 1 @ratx1 1 group rock
+gen zone brick p0 3.85 1.6 0 p1 3.85 3.08 0 p2 -8 1.6 0 p3 3.85 1.6 1.1 size @sy31m1,@sx31,@szh31 rat 1 @ratx2 1 group rock ; here 2 should be three but assumed equal
+;;make corner rock for above and right of tunnel rock
+gen zone brick p0 10.875 1.6 1.1 p1 10.875 3.08 1.1 p2 4 1.6 1.1 p3 10.875 1.6 2.58 size @sy22m1,@sx22,@sz22 rat 1 @ratx1 1 group rock
+gen zone brick p0 3.85 1.6 1.1 p1 3.85 3.08 1.1 p2 -8 1.6 1.1 p3 3.85 1.6 2.58 size @sy32m1,@sx32,@sz32 rat 1 @ratx2 1 group rock
+gen zone reflect origin 12.25,0,0 normal 0, 0,1 range group rock
+;;;make outer of rock located right of tunnel
+gen zone brick p0 12.375,3.08,0 p1 12.375,10,0 p2 10.875,3.08,0 p3 12.375,3.08,1.1 size @sy11m2, @sx11m2, @sz11m2 group orock
+gen zone brick p0 12.375,3.08,1.1 p1 12.375,10,1.1 p2 10.875,3.08,1.1 p3 12.375,3.08,2.58 size @sy12m2, @sx12m2, @sz12m2 group orock
+;;two commands for two blocks 0-1.1 and 1.1 2.58
+gen zone brick p0 10.875,3.08,0 p1 10.875,10,0 p2 4,3.08,0 p3 10.875,3.08,1.1 size @sy21m2, @sx21m2, @sz21m2 rat 1 @ratx1 1 group orock
+gen zone brick p0 10.875,3.08,1.1 p1 10.875,10,1.1 p2 4,3.08,1.1 p3 10.875,3.08,2.58 size @sy22m2, @sx22m2, @sz22m2 rat 1 @ratx1 1 group orock
+gen zone brick p0 4,3.08,0 p1 4,10,0 p2 3.85,3.08,0 p3 4,3.08,1.1 size @sy21m2, 1, @sz21m2 group orock
+gen zone brick p0 4,3.08,1.1 p1 4,10,1.1 p2 3.85,3.08,1.1 p3 4,3.08,2.58 size @sy22m2, 1, @sz22m2 group orock
+gen zone brick p0 3.85,3.08,0 p1 3.85,10,0 p2 -8,3.08,0 p3 3.85,3.08,1.1 size @sy31m2, @sx31m2, @sz31m2 rat 1 @ratx2 1 group orock
+gen zone brick p0 3.85,3.08,1.1 p1 3.85,10,1.1 p2 -8,3.08,1.1 p3 3.85,3.08,2.58 size @sy32m2, @sx32m2, @sz32m2 rat 1 @ratx2 1 group orock
+;;;make the outer of rock above tunnel
+gen zone brick p0 12.375,0,2.58 p1 12.375,1.6,2.58 p2 10.875,0,2.58 p3 12.375,0,6 size @sy13, @sx13, @sz13 group orock ;need to shift
+gen zone brick p0 12.375,1.6,2.58 p1 12.375,3.08,2.58 p2 10.875,1.6,2.58 p3 12.375,1.6,6 size @sy13m1, @sx13, @sz13 group orock
+;;two commands for two blocks in z direction 0-1.6 and 1.6-3.08
+gen zone brick p0 10.875,0,2.58 p1 10.875,1.6,2.58 p2 4,0,2.58 p3 10.875,0,6 size @sy23, @sx23, @sz23 rat 1 @ratx1 1 group orock
+gen zone brick p0 10.875,1.6,2.58 p1 10.875,3.08,2.58 p2 4,1.6,2.58 p3 10.875,1.6,6 size @sy23m1, @sx23, @sz23 rat 1 @ratx1 1 group orock
+gen zone brick p0 4,0,2.58 p1 4,1.6,2.58 p2 3.85,0,2.58 p3 4,0,6 size @sy23, 1, @sz23 group orock
+gen zone brick p0 4,1.6,2.58 p1 4,3.08,2.58 p2 3.85,1.6,2.58 p3 4,1.6,6 size @sy23m1, 1, @sz23 group orock
+gen zone brick p0 3.85,0,2.58 p1 3.85,1.6,2.58 p2 -8,0,2.58 p3 3.85,0,6 size @sy33, @sx33, @sz33 rat 1 @ratx2 1 group orock
+gen zone brick p0 3.85,1.6,2.58 p1 3.85,3.08,2.58 p2 -8,1.6,2.58 p3 3.85,1.6,6 size @sy33m1, @sx33, @sz33 rat 1 @ratx2 1 group orock
+;;;make the corner outer rock for above and right of rock
+gen zone brick p0 12.375,3.08,2.58 p1 12.375,10,2.58 p2 10.875,3.08,2.58 p3 12.375,3.08,6 size @sy13m2, @sx13m2, @sz13m2 group orock
+gen zone brick p0 10.875,3.08,2.58 p1 10.875,10,2.58 p2 4,3.08,2.58 p3 10.875,3.08,6 size @sy23m2, @sx23m2, @sz23m2 rat 1 @ratx1 1 group orock
+gen zone brick p0 4,3.08,2.58 p1 4,10,2.58 p2 3.85,3.08,2.58 p3 4,3.08,6 size @sy23m2, 1, @sz23m2 group orock
+gen zone brick p0 3.85,3.08,2.58 p1 3.85,10,2.58 p2 -8,3.08,2.58 p3 3.85,3.08,6 size @sy33m2, @sx33m2, @sz33m2 rat 1 @ratx2 1 group orock
+;;;;make the elastic rock
+;;;make the top elastic rock on the top of outer rock mass
+gen zone brick p0 12.375,0,6 p1 12.375,1.6,6 p2 10.875,0,6 p3 12.375,0,500 size @sy14, @sx14, @sz14 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 12.375,1.6,6 p1 12.375,3.08,6 p2 10.875,1.6,6 p3 12.375,1.6,500 size @sy14m1, @sx14, @sz14 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 10.875,0,6 p1 10.875,1.6,6 p2 4,0,6 p3 10.875,0,500 size @sy24, @sx24, @sz24 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 10.875,1.6,6 p1 10.875,3.08,6 p2 4,1.6,6 p3 10.875,1.6,500 size @sy24m1, @sx24, @sz24 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 4,0,6 p1 4,1.6,6 p2 3.85,0,6 p3 4,0,500 size @sy24, 1, @sz24 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 4,1.6,6 p1 4,3.08,6 p2 3.85,1.6,6 p3 4,1.6,500 size @sy24m1, 1, @sz24 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 3.85,0,6 p1 3.85,1.6,6 p2 -8,0,6 p3 3.85,0,500 size @sy34, @sx34, @sz34 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 3.85,1.6,6 p1 3.85,3.08,6 p2 -8,1.6,6 p3 3.85,1.6,500 size @sy34m1, @sx34, @sz34 rat 1 1 @ratze group outer_elastic
+;;;make the top elastic rock on the corner outer rock mass
+gen zone brick p0 12.375,3.08,6 p1 12.375,10,6 p2 10.875,3.08,6 p3 12.375,3.08,500 size @sy14m2, @sx14m2, @sz14m2 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 10.875,3.08,6 p1 10.875,10,6 p2 4,3.08,6 p3 10.875,3.08,500 size @sy24m2, @sx24m2, @sz24m2 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 4,3.08,6 p1 4,10,6 p2 3.85,3.08,6 p3 4,3.08,500 size @sy24m2, 1, @sz24m2 rat 1 1 @ratze group outer_elastic
+gen zone brick p0 3.85,3.08,6 p1 3.85,10,6 p2 -8,3.08,6 p3 3.85,3.08,500 size @sy34m2, @sx34m2, @sz34m2 rat 1 1 @ratze group outer_elastic
+
+def orarrange
+
+	local p_gp = gp_head
+	loop while p_gp # null
+		local px = gp_xpos(p_gp)
+		local py = gp_ypos(p_gp)
+		local pz = gp_zpos(p_gp)
+;		if px<4.01
+;		if px>3.99
+;		if py<10.02
+;		if py>-0.02
+;		if pz<500.01
+;		if pz>4
+;		gp_xpos(p_gp)=3.85
+;		end_if
+;		end_if
+;		end_if
+;		end_if
+;		end_if
+;		end_if
+		if px<12.4
+		if px>12.26
+		gp_xpos(p_gp)=12.25
+		end_if
+		end_if
+		p_gp=gp_next(p_gp)
+	end_loop
+end
+@orarrange
+gen zone reflect origin 12.25,0,0 normal 0, 0,1 range union group orock group outer_elastic
+group mesh range group cutoff not group mirror not x 3.258 4.688 y -0.1 4.08 z 1.09 3.435 
+group mesh range group cutoff not group mirror not x 3.258 4.688 y -0.1 4.08 z -3.435  -1.09 
+gen zone densify maxlength @m1 @m1 @m1 range group mesh
+;zone 1
+gen zone densify maxlength @m2 range x 4.688 5.688 y -0.1 5.08 z 1.09 4.435 
+gen zone densify maxlength @m2 range x 2.258 3.258 y -0.1 5.08 z 1.09 4.435 
+gen zone densify maxlength @m2 range x 3.258 4.688 y -0.1 5.08 z 3.435 4.435 ;miidle z 
+gen zone densify maxlength @m2 range x 4.688 5.688 y -0.1 5.08 z -4.435 -1.09
+gen zone densify maxlength @m2 range x 2.258 3.258 y -0.1 5.08 z -4.435 -1.09  ;middle z
+gen zone densify maxlength @m2 range x 3.258 4.688 y -0.1 5.08 z -4.435 -3.435
+gen zone densify maxlength @m2 range x 2.258 3.258 y 4.08 5.08 z 1.09 4.435 ;middle y
+gen zone densify maxlength @m2 range x 2.258 3.258 y 4.08 5.08 z -4.435 -1.09 ;middle y
+;zone 2
+gen zone densify maxlength @m3 range x 5.688 6.688 y -0.1 6.08 z 1.09 5.435 
+gen zone densify maxlength @m3 range x 1.258 2.258 y -0.1 6.08 z 1.09 5.435 
+gen zone densify maxlength @m3 range x 2.258 5.688 y -0.1 6.08 z 4.435 5.435 ;miidle z 
+gen zone densify maxlength @m3 range x 5.688 6.688 y -0.1 6.08 z -5.435 -1.09
+gen zone densify maxlength @m3 range x 1.258 2.258 y -0.1 6.08 z -5.435 -1.09  
+gen zone densify maxlength @m3 range x 2.258 5.688 y -0.1 6.08 z -5.435 -4.435 ;middle z
+gen zone densify maxlength @m3 range x 2.258 5.688 y 5.08 6.08 z 1.09 5.435 ;middle y
+gen zone densify maxlength @m3 range x 2.258 5.688 y 5.08 6.08 z -5.435 -1.09 ;middle y
+
+
+
+def mesden
+
+	ms = 0.5
+	inc = 1
+	xil = 3.258
+	xir = 4.688
+	yil = 3.08
+	yir = 4.08
+	zib = -3.435
+	zit = 3.435
+	loop i(0,2)
+		ts = ms+0.2
+			xl1 = xil - inc*i/2
+			xl2 = xil - inc*(i+1)/2
+			xr1 = xir + inc*i/2
+			xr2 = xir + inc*(i+1)/2
+			yl1 = yil + inc*i/2
+			yl2 = yil + inc*(i+1)/2
+			yr1 = yir
+			yr2 = yir
+			zb1 = zib - inc*i/2
+			zb2 = zib - inc*(i+1)/2
+			zt1 = zit + inc*i/2
+			zt2 = zit + inc*(i+1)/2
+		command
+			gen zone densify maxlength @ts @ts @ts range @xl1 @xl2 @yl1 @yl2 @zb1 @zb2
+			gen zone densify maxlength @ts @ts @ts range @xr1 @xr2 @yl1 @yl2 @zb1 @zb2
+		end_command
+	end_loop
+end
+attach face
+call grouping_flac_mesh
+
+
+
+
+
+
+

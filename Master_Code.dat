@@ -1,0 +1,43 @@
+new
+set fish safe off
+set processor 9
+def input_params
+modnum = 533m0.1
+circle = 0
+geomtype = 3
+cutoffd = 0.2277
+cutofft = 0.1139
+rtype = 1
+kH_rat = 3 ;horizontal to vertical stress ratio
+k_inplane = 1.75;ratio between high to low horizontal stress
+stress_CI = 2.75
+shaft = 0
+offset2 = 0.2500
+radius = 1.0000
+expansionfactor = 14
+l_r = 12
+r_ms = 15.00
+xrat = 1.00
+rrat = 0.72
+orrat = 1.15
+offset1 = 0.75
+innerfactor = 6.00
+idensrat = 1.25
+ldens = 2000
+lthick = 0.10
+lE = 10000000000
+lv = 0.20
+rlength_rad = 1.00
+bulkfactor = (1/r_ms)*32
+end
+input_params
+call final_mesh
+call Assign_Props
+call Initialize_Stresses
+;call Thermal_Analysis_stress_evolution_history
+call reassignmat
+def name_comp
+fname = 'Model'+string(modnum)+'_Complete'
+end
+name_comp
+save fname

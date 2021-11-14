@@ -1,0 +1,10 @@
+model mech null range union group concrete group HCB group gp_bentonite group buffer_block group DBF group UFCi 
+solve
+;model mech elastic range union group concrete group HCB group gp_bentonite group buffer_block group DBF group UFCi 
+;prop density densval_UFCi bulk bulkval_UFCi shear shearval_UFCi range group UFCi
+;prop density densval_concrete bulk bulkval_concrete shear shearval_concrete range group concrete
+;prop density densval_HCB bulk bulkval_HCB shear shearval_HCB range group HCB
+;prop density densval_DBF bulk bulkval_DBF shear shearval_DBF range group DBF
+;prop density densval_gp_bentonite bulk bulkval_gp_bentonite shear shearval_gp_bentonite range group gp_bentonite
+;prop density densval_buffer_block bulk bulkval_buffer_block shear shearval_buffer_block range group buffer_block
+;solve

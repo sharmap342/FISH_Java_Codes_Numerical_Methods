@@ -1,0 +1,62 @@
+def stress_calcs
+
+CI = 2*coh_peak*cos(fr_init*pi/180)/(1-sin(fr_init*pi/180)) ; Determine the peak unconfined strength
+maxstress = stress_CI*CI ; Calculate the maximum stress value
+
+if shaft = 0 ; If the excavation is not aligned with the gravity vector
+
+sigz = -maxstress/(3*kH_rat-1) ; Vertical stress at the surface of excavation
+sigzs = sigz-(0.027*1.1e6) ; Vertical stress at origin
+sigy = kH_rat*sigzs ; Maximum horizontal stress
+sigx = sigy/k_inplane ; Minimum horizontal stress along tunnel axis
+ygrad = (kH_rat*0.027)*1e6 ; y stress gradient
+xgrad = (kH_rat/k_inplane)*0.027*1e6
+
+command
+
+set gravity 0, 0, -10 ; Gravity is vertical (excavation is horizontal)
+ini sxx sigx gradient 0, 0, xgrad
+ini syy sigy gradient 0, 0, ygrad
+ini szz sigzs gradient 0, 0, 0.027e6
+
+end_command
+
+else ; If the excavation IS aligned with the gravity vector
+
+sigz = -maxstress/(3*k_inplane-1) ; Minimum horizontal stress
+sigy = k_inplane*sigz ; Maximum horziontal stress
+sigx = sigy/kH_rat ; Vertical stress
+
+command
+
+set gravity (-9.81,0,0) ; Gravity is along the x-axis (excavation-parallel)
+ini sxx sigx
+ini syy sigy
+ini szz sigz
+
+end_command
+
+end_if
+
+end
+
+stress_calcs
+
+fix x range x -8.1 -7.9
+fix x range x 12.2 12.27
+fix y range y -0.1 0.1
+fix y range y 9.9 10.1
+fix z range z -500.1 -499.9
+;fix z range z 499.9 500.1
+
+;fix x range x -6.6 -6.4
+;fix x range x 6.4 6.6
+;fix y range y -15.1 -14.9
+;fix y range y 14.9 15.1
+;fix z range z 0.1 -0.1
+;fix z range z 14.9 15.1
+
+;solve ; Bring model to equilibrium --> for real modelling
+
+
+;step 100 ; for trial testing

@@ -1,0 +1,57 @@
+;set fish autocreate off
+config thermal
+model therm th_iso
+prop conducti therm_cond_outer_elastic thexp therm_exp spec_heat specific_heat_outer_elastic range group outer_elastic 
+prop conducti therm_cond_host_rock thexp therm_exp spec_heat specific_heat_host_rock range group host_rock
+prop conducti therm_cond_concrete thexp therm_exp spec_heat specific_heat_concrete range group concrete
+prop conducti therm_cond_HCB thexp therm_exp spec_heat specific_heat_HCB range group HCB
+prop conducti therm_cond_DBF thexp therm_exp spec_heat specific_heat_DBF range group DBF
+prop conducti therm_cond_gp_bentonite thexp therm_exp spec_heat specific_heat_gp_bentonite range group gp_bentonite
+prop conducti therm_cond_buffer_block thexp therm_exp spec_heat specific_heat_buffer_block range group buffer_block
+prop conducti therm_cond_UFCi thexp therm_exp spec_heat specific_heat_UFCi range group UFCi
+ini density densval range group outer_elastic
+;ini density densval range group host_rock
+;ini density densval_concrete range group concrete
+;ini density densval_HCB range group HCB
+;ini density densval_DBF range group DBF
+;ini density densval_gp_bentonite range group gp_bentonite
+;ini density densval_buffer_block range group buffer_block
+initial t 11.1 grad 0 0 -0.012
+;def decay
+;;decay=exp(deconst*(thtime-thini))
+;
+;end
+;decay
+;set thini=0.0 deconst=-2.78e-4
+call heatvstimeif18
+apply vsource=1 hist=table 1  range group UFCi
+apply flux=0 range x 12.2 12.27
+apply flux=0 range x -8.1 -7.9
+apply flux=0 range y -0.1 0.1
+apply flux=0 range y 9.9 10.1
+fix t 17 range z -500.1 -499.9
+fix t 5 range z 499.9 500.1
+set mech on thermal off
+solve ;bring model to the equlilibruim under gravity
+call reassignmat ;excavate and then put backfill material
+history nstep 1300 id 2 thtime
+history nstep 1300 add id 3 zone vsi 7.2 0.001 1.7
+history nstep 1300 add id 4 zone vsi 7.2 0.001 3.04
+history nstep 1300 add id 5 zone vsi 7.2 0.001 4.56
+history nstep 1300 add id 6 zone smax 7.2 0.001 1.7
+history nstep 1300 add id 7 zone smax 7.2 0.001 3.04
+history nstep 1300 add id 8 zone smax 7.2 0.001 4.56
+history nstep 1300 add id 9 zone smin 7.2 0.001 1.7
+history nstep 1300 add id 10 zone smin 7.2 0.001 3.04
+history nstep 1300 add id 11 zone smin 7.2 0.001 4.56
+history nstep 1300 add id 12 gp temperature 7.2 0.001 1.7
+history nstep 1300 add id 13 gp temperature 7.2 0.001 3.04
+history nstep 1300 add id 14 gp temperature 7.2 0.001 4.56
+set mech off thermal on
+set thermal implicit on
+set thermal dt 2000
+set thermal ratio 1e-5
+call solvec
+;set thermal dt 1
+;solve
+;step 4000
