@@ -34,7 +34,7 @@ input_params
 call final_mesh
 call Assign_Props
 call Initialize_Stresses
-;call Thermal_Analysis_stress_evolution_history
+call Thermal_Analysis_stress_evolution_history
 call reassignmat
 def name_comp
 fname = 'Model'+string(modnum)+'_Complete'
