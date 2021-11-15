@@ -1,5 +1,5 @@
 # MASc project (FISH Codes - a language similar to Java)
-Code to model seals for tunnels in underground nuclear waste repositories.   
+## Code to model seals for tunnels in underground nuclear waste repositories.   
 
 The Master file defines global input variables for the program. It also calls other modules (final_mesh, assign_properties, initialize_stresses, thermal_analysis_stress_evolution_hitory).       
 
